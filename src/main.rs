@@ -63,6 +63,11 @@ fn main() {
     pushMsg.push_str("&message=");
     pushMsg.push_str(&args.arg_message);
 
+    if args.flag_use_html
+    {	
+        pushMsg.push_str("&html=1");
+    }     
+
     println!("pushMsg:str {}",pushMsg);
 
     let mut client = Client::new();
