@@ -1,7 +1,11 @@
 extern crate rustc_serialize;
 extern crate docopt;
+extern crate hyper;
 
+use std::io::Read;
 use docopt::Docopt;
+use hyper::Client;
+use hyper::header::Connection;
 
 const USAGE: &'static str = "
 rustOver.
@@ -38,19 +42,39 @@ struct Args {
     flag_sound: Vec<String>,
     flag_use_html: bool,
     flag_v: bool,
-    arg_token: Vec<String>,
-    arg_user_token: Vec<String>,
-    arg_message: Vec<String>
+    arg_token: String,
+    arg_user_token: String,
+    arg_message: String
 }
 
 fn main() {
     let args: Args = Docopt::new(USAGE)
                             .and_then(|d| d.decode())
                             .unwrap_or_else(|e| e.exit());
-
     if args.flag_v
     {
 	println!("{:?}", args);
     }
+
+    let mut pushMsg = String::from("token=");
+    pushMsg.push_str(&args.arg_token);
+    pushMsg.push_str("&user=");
+    pushMsg.push_str(&args.arg_user_token);
+    pushMsg.push_str("&message=");
+    pushMsg.push_str(&args.arg_message);
+
+    println!("pushMsg:str {}",pushMsg);
+
+    let mut client = Client::new();
+
+    let mut resp = client.post("https://api.pushover.net/1/messages.json")
+	.body(&pushMsg)
+	.send().unwrap();
+
+    let mut body = String::new();
+    resp.read_to_string(&mut body).unwrap();
+
+    println!("Response: {}", body);
+
 }
 
