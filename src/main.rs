@@ -33,13 +33,13 @@ Options
 
 #[derive(Debug, RustcDecodable)]
 struct Args {
-    flag_title: Vec<String>,
-    flag_devices: Vec<String>,
-    flag_url: Vec<String>,
-    flag_url_title: Vec<String>,
-    flag_priority: Vec<String>,
-    flag_timestamp: Option<i64>,
-    flag_sound: Vec<String>,
+    flag_title: String,
+    flag_devices: String,
+    flag_url: String,
+    flag_url_title: String,
+    flag_priority: String,
+    flag_timestamp: String,
+    flag_sound: String,
     flag_use_html: bool,
     flag_v: bool,
     arg_token: String,
@@ -55,13 +55,44 @@ fn main() {
     {
 	println!("{:?}", args);
     }
-
+	
     let mut pushMsg = String::from("token=");
     pushMsg.push_str(&args.arg_token);
     pushMsg.push_str("&user=");
     pushMsg.push_str(&args.arg_user_token);
     pushMsg.push_str("&message=");
     pushMsg.push_str(&args.arg_message);
+
+    if !args.flag_title.is_empty()
+    {
+		pushMsg.push_str("&title=");
+		pushMsg.push_str(&args.flag_title);
+    }
+    if !args.flag_url.is_empty()
+    {
+        pushMsg.push_str("&url=");
+		pushMsg.push_str(&args.flag_url);
+    }
+    if !args.flag_url_title.is_empty()
+    {
+        pushMsg.push_str("&url_title=");
+		pushMsg.push_str(&args.flag_url_title);
+    }
+    if !args.flag_priority.is_empty()
+    {
+        pushMsg.push_str("&flag_priority=");
+		pushMsg.push_str(&args.flag_priority);
+    }
+    if !args.flag_timestamp.is_empty()
+    {
+        pushMsg.push_str("&timestamp=");
+		pushMsg.push_str(&args.flag_timestamp);
+    }
+    if !args.flag_sound.is_empty()
+    {
+        pushMsg.push_str("&sound=");
+		pushMsg.push_str(&args.flag_sound);
+    }
 
     if args.flag_use_html
     {	
@@ -72,13 +103,12 @@ fn main() {
 
     let mut client = Client::new();
 
-    let mut resp = client.post("https://api.pushover.net/1/messages.json")
+   let mut resp = client.post("https://api.pushover.net/1/messages.json")
 	.body(&pushMsg)
 	.send().unwrap();
 
     let mut body = String::new();
     resp.read_to_string(&mut body).unwrap();
-
     println!("Response: {}", body);
 
 }
